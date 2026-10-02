@@ -6,7 +6,7 @@ PROFILE ?= ./releng
 WORKDIR ?= ./work
 OUTDIR  ?= ./output
 
-.PHONY: all build clean fast help CheckRoot
+.PHONY: all packages build clean fast help CheckRoot
 
 # default rule
 all: build
@@ -22,6 +22,11 @@ check-root:
 prepare:
 	@mkdir -p "$(WORKDIR)"
 	@mkdir -p "$(OUTDIR)"
+
+packages:
+	cd general/gryphd && makepkg -fcs
+	cp general/gryphd/*.pkg.tar.zst $(PROFILE)/airootfs/var/lib/gryphon/repo/
+	cd $(PROFILE)/airootfs/var/lib/gryphon/repo/ && repo-add -R gryphon.db.tar.zst *.pkg.tar.zst
 
 # main build rule executing mkarchiso
 build: check-root prepare

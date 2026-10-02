@@ -1,0 +1,44 @@
+# Maintainer: Ratmir Timergaliev <ratmirt59@gmail.com>
+pkgname=gryphd
+pkgver=0.0
+pkgrel=1
+epoch=
+pkgdesc="Gryphon default Package"
+arch=(x86_64 i686)
+url=""
+license=('GPL')
+groups=()
+depends=()
+makedepends=(git)
+checkdepends=()
+optdepends=()
+provides=(gryphd)
+conflicts=(gryphd)
+replaces=()
+backup=()
+options=()
+install=
+changelog=
+source=()
+noextract=()
+sha256sums=()
+validpgpkeys=()
+
+_local_srcdir="/home/$USER/dev/gryph-pkg/"
+
+prepare() {
+  # TODO: use repository
+  rm -rf "$srcdir/$pkgname"
+  
+  cp -a "$_local_srcdir" "$srcdir/$pkgname"
+}
+
+build() {
+	cd "$srcdir/$pkgname/gryphd"
+	make
+}
+
+package() {
+	cd "$srcdir/$pkgname/gryphd"
+	make DESTDIR="$pkgdir/" install
+}

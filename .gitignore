@@ -1,2 +1,5 @@
 output/
 work/
+*.pkg.tar.zst
+*.db*
+*.files*
