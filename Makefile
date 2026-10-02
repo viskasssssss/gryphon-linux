@@ -2,11 +2,16 @@
 -include config/gryph.mk
 
 # set fallback defaults in case variables are missing
-PROFILE ?= ./releng
-WORKDIR ?= ./work
-OUTDIR  ?= ./output
+PROFILE   ?= ./releng/
+WORKDIR   ?= ./work/
+OUTDIR    ?= ./output/
+REPODIR   ?= ./repo/
+SCRIPTSDIR ?= ./scripts/
 
-.PHONY: all packages build clean fast help CheckRoot
+# dev
+PORT ?= 8000
+
+.PHONY: all packages build dev clean fast help CheckRoot
 
 # default rule
 all: build
@@ -25,8 +30,8 @@ prepare:
 
 packages:
 	cd general/gryphd && makepkg -fcs
-	cp general/gryphd/*.pkg.tar.zst $(PROFILE)/airootfs/var/lib/gryphon/repo/
-	cd $(PROFILE)/airootfs/var/lib/gryphon/repo/ && repo-add -R gryphon.db.tar.zst *.pkg.tar.zst
+	cp general/gryphd/*.pkg.tar.zst $(REPODIR)
+	cd $(REPODIR) && repo-add -R gryphon.db.tar.zst *.pkg.tar.zst
 
 # main build rule executing mkarchiso
 build: check-root prepare
@@ -35,6 +40,17 @@ build: check-root prepare
 	@echo "Work Dir: $(WORKDIR)"
 	@echo "Out  Dir: $(OUTDIR)"
 	mkarchiso -v -w "$(WORKDIR)" -o "$(OUTDIR)" "$(PROFILE)"
+
+# dev build rule preparing package repository dev server
+dev: check-root prepare
+	@echo "Updating airootfs/etc/pacman.conf file"
+	python $(SCRIPTSDIR)/dev/set-server.py $(PROFILE)airootfs/etc/pacman.conf $(PORT)
+
+	@echo "Updating pacman.conf file"
+	python $(SCRIPTSDIR)/dev/set-server.py $(PROFILE)pacman.conf $(PORT)
+
+	@echo "Starting package repo server"
+	python $(SCRIPTSDIR)/dev/repo.py $(REPODIR) --port $(PORT)
 
 # clean rule 
 # NOTE: always verify mountpoints before forcing an rm -rf on workdir!

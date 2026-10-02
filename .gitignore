@@ -1,5 +1,6 @@
 output/
 work/
+repo/
 *.pkg.tar.zst
 *.db*
 *.files*
